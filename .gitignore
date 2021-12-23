@@ -1,0 +1,4 @@
+# removes the dotenv plugin from being tracked
+.env
+# removes the node modules from being tracked
+node_modules
