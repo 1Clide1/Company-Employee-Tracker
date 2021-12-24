@@ -78,18 +78,31 @@ function employeeMenu() {
   })
 }
 function viewAllEmployees(){
-// found some help with this online this is pretty much saying take employee's first and last name, their role title, salary, and department name
-// the concat line is saying grab the first name and last name join that into a string giving a space in between. this is for the manager table
-// AS gives that more of a readiblity factor it's getting the names FROM the employee table which inner join makes that turn into a viewable table for console table
-// inner join again for the department name table and then left join basically means to start from left to right first starting with the employee and all the way on the right is the manager
-  connection.query("SELECT employee.first_name, employee.last_name, role.title, role.salary, department.name, CONCAT(e.first_name, ' ' ,e.last_name) AS Manager FROM employee INNER JOIN role ON role.id = employee.role_id INNER JOIN department ON department.id = role.department_id LEFT JOIN employee e ON employee.manager_id = e.id;", 
+// found some help with this online this is pretty much saying take employee's first and last name, their role title, salary, and department name.
+// the concat line is saying grab the first name and last name join that into a string giving a space in between. this is for the manager table that way their names are displayed properly.
+// AS makes it easier to read and is basically creating an alias called manager, it's getting the names FROM the employee table. first inner join is to make the salary table. 
+// ON basically means to join but I am using it here to join the actual role id and saying that it is coming from the employee role id making the link from the different columns.
+// using the same concept again to get the department name table and then left join basically means starting from the left ending at the right side, also include the managers.
+// if you don't specify left in this case it will not include the managers which isn't good in this case.
+  connection.query("SELECT employee.first_name, employee.last_name, role.title, role.salary, department.name, CONCAT(e.first_name, ' ' ,e.last_name) AS manager FROM employee INNER JOIN role ON role.id = employee.role_id INNER JOIN department ON department.id = role.department_id LEFT JOIN employee e ON employee.manager_id = e.id;", 
 // similar to req, res functions, instead of request I am using this to handle any errors and if there are no errors it will run the response
    async function(err, res) {
-      if (err) throw console.error("Can't view all the employee's at this time, the query needs adjusting")
-      // this case the response is to generate the console table npm to display a well formatted table
-     console.table(res)
-    //  this function line lets me have the program to wait before it calls back to the employee menu I don't want the menu to instantly appear once the table is generated
-     await new Promise(resolve => setTimeout(resolve, 500));
-     return employeeMenu();
+      if (err) throw console.error("Can't view all the employee's at this time, the query needs adjusting");
+// this case the response is to generate the console table npm to display a well formatted table
+      console.table(res);
+//  this function line lets me have the program to wait before it calls back to the employee menu I don't want the menu to instantly appear once the table is generated
+      await new Promise(resolve => setTimeout(resolve, 300));
+      return employeeMenu();
     })
+}
+function viewAllRoles(){
+// this gets the employee's first and last name along with their job title. Make a table that is called job_title since you can't have spaces.
+// left in this case retains the original order that I created the db in. join the job titles to the respective employee
+  connection.query("SELECT employee.first_name, employee.last_name, role.title AS job_title FROM employee LEFT JOIN role ON employee.role_id = role.id;",
+  async function(err,res){
+    if (err) throw console.error("Can't view all the employee's at this time, the query needs adjusting")
+    console.table(res);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return employeeMenu();
+  });
 }
