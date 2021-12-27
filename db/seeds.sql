@@ -38,24 +38,25 @@ VALUE ("Lawyer", 190000, 4);
 -- manager id = the employee id aka brad jhonson is a sales lead his manager id is 1 since he is the first person on the employee list
 -- their role_id relates to the actual roles' ids
 -- aka sales lead is 2, sales person is 1 etc
+-- have the managers in order that way it is easier to add employee's
 INSERT INTO employee (first_name, last_name, manager_id, role_id)
 VALUE ("Brad", "Johnson", null, 2);
 INSERT INTO employee (first_name, last_name, manager_id, role_id)
-VALUE ("Cindy", "Lu", 1, 1);
-INSERT INTO employee (first_name, last_name, manager_id, role_id)
 VALUE ("John", "Doe", null, 3);
-INSERT INTO employee (first_name, last_name, manager_id, role_id)
-VALUE ("Ashley", "Rodriguez", 3, 4);
 INSERT INTO employee (first_name, last_name, manager_id, role_id)
 VALUE ("Liam", "Nesson", null, 5);
 INSERT INTO employee (first_name, last_name, manager_id, role_id)
-VALUE ("Chris", "Diaz", 5, 6);
-INSERT INTO employee (first_name, last_name, manager_id, role_id)
 VALUE ("Johnny","Good", null, 7);
 INSERT INTO employee (first_name, last_name, manager_id, role_id)
-VALUE ("Brandon", "Baker", 7, 8);
+VALUE ("Cindy", "Lu", 1, 1);
 INSERT INTO employee (first_name, last_name, manager_id, role_id)
-VALUE ("Tom", "Nook", 7, 8);
+VALUE ("Ashley", "Rodriguez", 2, 4);
+INSERT INTO employee (first_name, last_name, manager_id, role_id)
+VALUE ("Chris", "Diaz", 3, 6);
+INSERT INTO employee (first_name, last_name, manager_id, role_id)
+VALUE ("Brandon", "Baker", 4, 8);
+INSERT INTO employee (first_name, last_name, manager_id, role_id)
+VALUE ("Tom", "Nook", 4, 8);
 
 -- this helps with mysql2 to basically search through everyone in the department, role, and employee tables 
 SELECT * FROM department;
