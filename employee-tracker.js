@@ -77,6 +77,8 @@ function employeeMenu() {
     }
   })
 }
+
+// function to view all of the employees
 function viewAllEmployees(){
 // found some help with this online this is pretty much saying take employee's first and last name, their role title, salary, and department name.
 // the concat line is saying grab the first name and last name join that into a string giving a space in between. this is for the manager table that way their names are displayed properly.
@@ -91,10 +93,12 @@ function viewAllEmployees(){
 // this case the response is to generate the console table npm to display a well formatted table
       console.table(res);
 //  this function line lets me have the program to wait before it calls back to the employee menu I don't want the menu to instantly appear once the table is generated
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise(resolve => setTimeout(resolve, 500));
       return employeeMenu();
     })
 }
+
+// function to view all the employees and their roles
 function viewAllRoles(){
 // this gets the employee's first and last name along with their job title. Make a table that is called job_title since you can't have spaces.
 // left in this case retains the original order that I created the db in. join the job titles to the respective employee
@@ -102,7 +106,95 @@ function viewAllRoles(){
   async function(err,res){
     if (err) throw console.error("Can't view all the employee's at this time, the query needs adjusting")
     console.table(res);
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise(resolve => setTimeout(resolve, 500));
     return employeeMenu();
   });
+}
+
+// function to view all the employees and their departments
+function viewAllDepartments(){
+  connection.query("SELECT employee.first_name, employee.last_name, department.name AS department FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id;", 
+  async function(err,res){
+    if (err) throw console.error("Can't view all the employee's at this time, the query needs adjusting")
+    console.table(res);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return employeeMenu();
+  });
+}
+
+// using an array to help store the needed data
+// must be outside the function in order to keep the data or else the the last part of the function will return an undefined
+var roleArray= []
+// function to select a role and show it as a choice that the user can select
+// the functions have to be outside because if left in with a name inquier will have an issue
+function selectRole() {
+  // this is selecting everything from the role table
+  connection.query("SELECT * FROM role", function(err, res) {
+    if (err) throw console.error("the connection query has a typo, please re-check the query and adjust accordingly.")
+    for (var i = 0; i < res.length; i++) {
+      roleArray.push(res[i].title);
+    }
+
+  })
+  return roleArray;
+}
+
+var managersArray=[]
+// function to select a manager that also provides a list that a user can select
+function selectManager(){
+        // this is selecting the manager's first and last name and specifing that the id is null because all of the managers have a null id
+        connection.query("SELECT first_name, last_name FROM employee WHERE manager_id IS NULL", function(err, res) {
+          if (err) throw console.error("the connection query has a typo, please re-check the query and adjust accordingly.")
+          for (var i = 0; i < res.length; i++) {
+            managersArray.push(res[i].first_name);
+          }
+      
+        })
+        return managersArray;
+}
+
+function addEmployee(){
+  inquirer.prompt([
+    {
+      type: "input",
+      name: "firstName",
+      message: "What is the employee's first name?"
+    },
+    {
+      type: "input",
+      name: "lastName",
+      message: "What is the employee's last name?"
+    },
+    {
+      type: "list",
+      name: "addRole",
+      message: "What is the employee's role in this company?",
+      choices: selectRole()
+    },
+    {
+      type: "list",
+      name: "addManager",
+      message: "What is the manager's name that is assigned to this employee?",
+      choices: selectManager()
+      
+    }
+  ]).then(function (value) {
+    // an array starts at the index of 0, I have all the managers at 1-4 so plus one makes it that the outcome will for the managers choices will be correct.
+    // same concept applies to the roles
+    var roleId = selectRole().indexOf(value.addRole) + 1
+    var managerId = selectManager().indexOf(value.addManager) + 1
+    connection.query("INSERT INTO employee SET ?", 
+    {
+        first_name: value.firstName,
+        last_name: value.lastName,
+        manager_id: managerId,
+        role_id: roleId
+        
+    }, function(err){
+        if (err) throw console.error("please recheck the query along with the variables to see if you have written them correctly.")
+        console.table(value)
+        employeeMenu()
+    })
+
+})
 }
