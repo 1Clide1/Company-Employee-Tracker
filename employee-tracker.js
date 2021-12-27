@@ -37,6 +37,7 @@ function employeeMenu() {
       choices: [
               "View All Employees?", 
               "View All Employee's By Roles?",
+              "View All The Managers?",
               "View all Emplyees By Deparments", 
               "Update Employee",
               "Add Employee?",
@@ -54,6 +55,10 @@ function employeeMenu() {
         viewAllRoles();
         break;
 
+        case "View All The Managers?":
+        viewAllManagers();
+        break;
+
         case "View all Emplyees By Deparments":
         viewAllDepartments();
         break;
@@ -66,14 +71,9 @@ function employeeMenu() {
         addEmployee();
         break;
 
-        case "Add Role?":
+        case "View total salary budget?":
         addRole();
         break;
-
-        case "Add Department?":
-        addDepartment();
-        break;
-    
     }
   })
 }
@@ -111,6 +111,20 @@ function viewAllRoles(){
   });
 }
 
+// function to view all the managers
+function viewAllManagers(){
+  // basically the same as view all employee's except I changed the name column to department_name and 
+  // title to job title
+  // this time specificed that I am only looking for employees with the id of null since they are the managers
+  connection.query("SELECT employee.first_name, employee.last_name, role.title AS job_title, role.salary, department.name AS department_name FROM employee INNER JOIN role ON role.id = employee.role_id INNER JOIN department ON department.id = role.department_id WHERE manager_id IS NULL;", 
+  async function(err,res){
+    if (err) throw console.error("Can't view all the employee's at this time, the query needs adjusting")
+    console.table(res);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return employeeMenu();
+  });
+}
+
 // function to view all the employees and their departments
 function viewAllDepartments(){
   connection.query("SELECT employee.first_name, employee.last_name, department.name AS department FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id;", 
@@ -123,10 +137,10 @@ function viewAllDepartments(){
 }
 
 // using an array to help store the needed data
-// must be outside the function in order to keep the data or else the the last part of the function will return an undefined
+// must be outside the function in order to keep the data or else the the last part of the function will return as undefined
 var roleArray= []
 // function to select a role and show it as a choice that the user can select
-// the functions have to be outside because if left in with a name inquier will have an issue
+// the functions have to be outside because these functions have a name that I call back to. if the function was anonymous then 
 function selectRole() {
   // this is selecting everything from the role table
   connection.query("SELECT * FROM role", function(err, res) {
@@ -143,7 +157,7 @@ var managersArray=[]
 // function to select a manager that also provides a list that a user can select
 function selectManager(){
         // this is selecting the manager's first and last name and specifing that the id is null because all of the managers have a null id
-        connection.query("SELECT first_name, last_name FROM employee WHERE manager_id IS NULL", function(err, res) {
+        connection.query("SELECT employee.first_name, employee.last_name FROM employee WHERE manager_id IS NULL", function(err, res) {
           if (err) throw console.error("the connection query has a typo, please re-check the query and adjust accordingly.")
           for (var i = 0; i < res.length; i++) {
             managersArray.push(res[i].first_name);
@@ -174,7 +188,7 @@ function addEmployee(){
     {
       type: "list",
       name: "addManager",
-      message: "What is the manager's name that is assigned to this employee?",
+      message: "Choosing by first name, what is the manager's name that is assigned to this employee?",
       choices: selectManager()
       
     }
@@ -183,6 +197,7 @@ function addEmployee(){
     // same concept applies to the roles
     var roleId = selectRole().indexOf(value.addRole) + 1
     var managerId = selectManager().indexOf(value.addManager) + 1
+    // cool trick is that in sql the ? is a dynamic parameter and set there as a place holder. in this case that would be where we assign the first and last name, along with the ids to the proper values
     connection.query("INSERT INTO employee SET ?", 
     {
         first_name: value.firstName,
@@ -190,10 +205,11 @@ function addEmployee(){
         manager_id: managerId,
         role_id: roleId
         
-    }, function(err){
+    }, async function(err){
         if (err) throw console.error("please recheck the query along with the variables to see if you have written them correctly.")
         console.table(value)
-        employeeMenu()
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return employeeMenu();
     })
 
 })
