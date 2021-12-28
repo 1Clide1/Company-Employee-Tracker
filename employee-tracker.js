@@ -39,10 +39,11 @@ function employeeMenu() {
               "View All Employee's By Roles?",
               "View All The Managers?",
               "View all Emplyees By Deparments", 
-              "Update Employee",
-              "Add Employee?",
-              "Add Role?",
-              "Add Department?"
+              "View total salary budget?",
+              "Update an employee",
+              "Add an employee?",
+              "Add a new role?",
+              "Add a new department?"
       ]
     }
   ]).then(function(value){
@@ -63,16 +64,24 @@ function employeeMenu() {
         viewAllDepartments();
         break;
 
-        case "Update Employee":
+        case "Update an employee":
         updateEmployees();
         break;
 
-        case "Add Employee?":
+        case "Add an employee?":
         addEmployee();
         break;
 
-        case "View total salary budget?":
+        case "Add a new role?":
         addRole();
+        break;
+
+        case "Add a new department?":
+        addDepartment();
+        break;
+
+        case "View total salary budget?":
+        viewTotalSalary();
         break;
     }
   })
@@ -86,7 +95,7 @@ function viewAllEmployees(){
 // ON basically means to join but I am using it here to join the actual role id and saying that it is coming from the employee role id making the link from the different columns.
 // using the same concept again to get the department name table and then left join basically means starting from the left ending at the right side, also include the managers.
 // if you don't specify left in this case it will not include the managers which isn't good in this case.
-  connection.query("SELECT employee.first_name, employee.last_name, role.title, role.salary, department.name, CONCAT(e.first_name, ' ' ,e.last_name) AS manager FROM employee INNER JOIN role ON role.id = employee.role_id INNER JOIN department ON department.id = role.department_id LEFT JOIN employee e ON employee.manager_id = e.id;", 
+  connection.query("SELECT employee.first_name, employee.last_name, role.title AS job_title, role.salary, department.name AS department_name, CONCAT(e.first_name, ' ' ,e.last_name) AS manager FROM employee INNER JOIN role ON role.id = employee.role_id INNER JOIN department ON department.id = role.department_id LEFT JOIN employee e ON employee.manager_id = e.id;", 
 // similar to req, res functions, instead of request I am using this to handle any errors and if there are no errors it will run the response
    async function(err, res) {
       if (err) throw console.error("Can't view all the employee's at this time, the query needs adjusting");
@@ -135,7 +144,17 @@ function viewAllDepartments(){
     return employeeMenu();
   });
 }
-
+// function to view total salary
+function viewTotalSalary(){
+  // this basically adds up all of the salaries and outputs it as one total value
+  connection.query("SELECT SUM(salary) AS total_salary_budget FROM role", 
+  async function(err,res){
+    if (err) throw console.error("Can't view all the employee's at this time, the query needs adjusting")
+    console.table(res);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return employeeMenu();
+  });
+}
 // using an array to help store the needed data
 // must be outside the function in order to keep the data or else the the last part of the function will return as undefined
 var roleArray= []
