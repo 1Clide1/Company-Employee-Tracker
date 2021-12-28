@@ -22,8 +22,8 @@ const connection =
 // I will know where the error came from but a user just using their own version will not
 // this is also a triple check to see if I wrote down the correct variables right in the connection object
 connection.connect(function(err) {
-  if (err) throw console.error("error getting connection, please recheck the connection variables")
-  console.log("Connected as Id" + connection.threadId)
+  if (err) throw console.error("error getting connection, please recheck the connection variables");
+  console.log("Connected as Id" + connection.threadId);
   employeeMenu();
 });
 
@@ -84,7 +84,7 @@ function employeeMenu() {
         viewTotalSalary();
         break;
     }
-  })
+  });
 }
 
 // function to view all of the employees
@@ -104,7 +104,7 @@ function viewAllEmployees(){
 //  this function line lets me have the program to wait before it calls back to the employee menu I don't want the menu to instantly appear once the table is generated
       await new Promise(resolve => setTimeout(resolve, 500));
       return employeeMenu();
-    })
+    });
 }
 
 // function to view all the employees and their roles
@@ -113,7 +113,7 @@ function viewAllRoles(){
 // left in this case retains the original order that I created the db in. join the job titles to the respective employee
   connection.query("SELECT employee.first_name, employee.last_name, role.title AS job_title FROM employee LEFT JOIN role ON employee.role_id = role.id;",
   async function(err,res){
-    if (err) throw console.error("Can't view all the employee's at this time, the query needs adjusting")
+    if (err) throw console.error("Can't view all the employee's at this time, the query needs adjusting");
     console.table(res);
     await new Promise(resolve => setTimeout(resolve, 500));
     return employeeMenu();
@@ -157,7 +157,7 @@ function viewTotalSalary(){
 }
 // using an array to help store the needed data
 // must be outside the function in order to keep the data or else the the last part of the function will return as undefined
-var roleArray= []
+var roleArray= [];
 // function to select a role and show it as a choice that the user can select
 // the functions have to be outside because these functions have a name that I call back to. if the function was anonymous then 
 function selectRole() {
@@ -168,11 +168,11 @@ function selectRole() {
       roleArray.push(res[i].title);
     }
 
-  })
+  });
   return roleArray;
 }
 
-var managersArray=[]
+var managersArray=[];
 // function to select a manager that also provides a list that a user can select
 function selectManager(){
         // this is selecting the manager's first and last name and specifing that the id is null because all of the managers have a null id
@@ -182,7 +182,7 @@ function selectManager(){
             managersArray.push(res[i].first_name);
           }
       
-        })
+        });
         return managersArray;
 }
 
@@ -225,11 +225,108 @@ function addEmployee(){
         role_id: roleId
         
     }, async function(err){
-        if (err) throw console.error("please recheck the query along with the variables to see if you have written them correctly.")
+        if (err) throw console.error("please recheck the query along with the variables to see if you have written them correctly.");
         console.table(value)
         await new Promise(resolve => setTimeout(resolve, 500));
         return employeeMenu();
-    })
+    });
 
-})
+});
+}
+
+// function to update an employee
+// currently not working not sure why it is resulting in an error
+function updateEmployees(){
+  connection.query("SELECT employee.last_name, role.title FROM employee JOIN role ON employee.role_id = role.id;", 
+  function(err, res) {
+    if (err) throw console.error("the connection query has a typo, please re-check the query and adjust accordingly.");
+    console.log(res)
+    inquirer.prompt([
+      {
+        name: "lastName",
+        type: "list",
+        message: "What is the Employee's last name? Select the employee in which you want to change their job title.",
+        choices: function() {
+            var lastName = [];
+            for (var i = 0; i < res.length; i++) {
+              lastName.push(res[i].last_name);
+            }
+            return lastName;
+          }
+        },
+        {
+          name: "newRole",
+          type: "list",
+          message: "What is the Employees new job title?",
+          choices: selectRole()
+        }
+    ]).then(function(value) {
+      var roleId = selectRole().indexOf(value.newRole) + 1
+      connection.query("UPDATE employee SET ? WHERE ?", 
+      {last_name: value.lastName}, 
+      {role_id: roleId}, 
+      async function(err){
+        if (err) throw console.error("please recheck the query along with the variables to see if you have written them correctly.");
+        console.table(value)
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return employeeMenu();
+      });
+    });
+  });
+}
+
+// function to add a new role
+function addRole() { 
+  connection.query("SELECT role.title AS Title, role.salary AS Salary FROM role",   function(err, res) {
+    inquirer.prompt([
+        {
+          name: "title",
+          type: "input",
+          message: "What is the new role you want to add?"
+        },
+        {
+          name: "salary",
+          type: "input",
+          message: "What is the salary for that new role?"
+
+        } 
+    ]).then(function(res) {
+        connection.query("INSERT INTO role SET ?",
+            {
+              title: res.title,
+              salary: res.salary,
+            },
+            async function(err) {
+              if (err) throw console.error("please recheck the query along with the variables to see if you have written them correctly.");
+              console.table(res)
+              await new Promise(resolve => setTimeout(resolve, 500));
+              return employeeMenu();
+            }
+        );
+    });
+  });
+}
+
+// function to add a new department
+function addDepartment() { 
+  inquirer.prompt([
+      {
+        name: "name",
+        type: "input",
+        message: "What will your new department be called?"
+      }
+  ]).then(function(res) {
+      connection.query("INSERT INTO department SET ? ",
+          {
+            name: res.name
+          
+          },
+          async function(err) {
+            if (err) throw console.error("please recheck the query along with the variables to see if you have written them correctly.");
+            console.table(res)
+            await new Promise(resolve => setTimeout(resolve, 500));
+            return employeeMenu();
+          }
+      );
+  });
 }
