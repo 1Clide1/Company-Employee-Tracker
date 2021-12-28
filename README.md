@@ -1,7 +1,12 @@
 # Company Employee Tracker
-  
+## Link-To-Video-Showcase
+
+[Click Here To Watch :)](https://youtu.be/Z3ClRWI3U8s)
+
 ## Table Of Contents
-  
+
+* [Link To Video Showcase](#Link-To-Video-Showcase)
+ 
 * [Description](#Description)
   
 * [Author](#Author)
