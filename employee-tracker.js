@@ -5,8 +5,10 @@ require('console.table')
 const mysql = require('mysql2');
 // setting up dotenv need this or else dotenv will NOT work
 require('dotenv').config();
-// this is a separate file of all my connection variables
-const env= require('./conncetion-variables/connectionVariables')
+// this is a separate file of all my connection variables use this to conncet with dotenv a dotenv file. it will be stared that way it is easier to tell what I am talking about
+
+// ***const env= require('./conncetion-variables/connectionVariables')***
+
 // get the connection from my connection file
 const connection =
 // for my .env setup
