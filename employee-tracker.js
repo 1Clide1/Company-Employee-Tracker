@@ -9,13 +9,22 @@ require('dotenv').config();
 const env= require('./conncetion-variables/connectionVariables')
 // get the connection from my connection file
 const connection =
+// for my .env setup
+    // mysql.createConnection({
+    //     host: env.dbHost,
+    //     user: env.dbUserName,
+    //     port: env.dbPort,
+    //     password: env.dbPass,
+    //     database: env.db
+    // });
+    // regular setup
     mysql.createConnection({
-        host: env.dbHost,
-        user: env.dbUserName,
-        port: env.dbPort,
-        password: env.dbPass,
-        database: env.db
-    });
+      host: "localhost",
+      user: "root",
+      port: 3306,
+      password: "Youngclizzy!7789",
+      database: "employee_tracker_db"
+  });
 
 // this cool function helps me use the connection I have already made
 // throw basically means to generate and I wanted to add a more descriptive error message because if you just leave it as err it will say nothing and boot you off the program, 
@@ -233,7 +242,6 @@ function addEmployee(){
 
 });
 }
-
 // function to update an employee
 // currently not working not sure why it is resulting in an error
 function updateEmployees(){
@@ -262,7 +270,7 @@ function updateEmployees(){
         }
     ]).then(function(value) {
       var roleId = selectRole().indexOf(value.newRole) + 1
-      connection.query("UPDATE employee SET ? WHERE ?", 
+      connection.query("UPDATE employee SET  WHERE ", 
       {last_name: value.lastName}, 
       {role_id: roleId}, 
       async function(err){
