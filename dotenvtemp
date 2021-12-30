@@ -1,0 +1,5 @@
+sql_Pass="Youngclizzy!7789"
+sql_HOST="localhost"
+sql_USER="root"
+DB="employee_tracker_db"
+PORT=3306
