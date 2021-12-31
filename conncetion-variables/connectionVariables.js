@@ -18,6 +18,6 @@ if (!db) {
 }
 const dbPort= process.env.PORT
 if (!dbPort) {
-    throw new Error('db: environment variables must be set right, possible typo error');
+    throw new Error('PORT: environment variables must be set right, possible typo error');
 }
 module.exports={dbUserName, dbPass, dbHost, db, dbPort}
